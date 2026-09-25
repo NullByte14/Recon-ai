@@ -1,0 +1,34 @@
+transaction_id,date,description,amount,category
+BNK40582,2023-03-11,Client Payment - Beta LLC,1200.0,Revenue
+BNK39380,2023-03-01,Office Rent,-2000.0,Rent
+BNK82703,2023-03-09,Office Supplies - Staples,-150.0,Office Expense
+BNK44368,2023-03-28,Client Payment - Epsilon Ltd,2100.0,Revenue
+BNK53718,2023-03-22,Payroll - March,-8500.0,Payroll
+BNK88606,2023-03-01,AWS Cloud Hosting,-320.15,Software
+BNK21243,2023-03-03,Uber Rides,-45.0,Travel
+BNK41395,2023-03-06,Coffee & Snacks,-85.5,Office Expense
+BNK89367,2023-03-29,Team Lunch,-150.0,Meals
+BNK22120,2023-03-18,Accounting Services,-400.0,Accounting
+BNK24282,2023-03-17,Wire Transfer Fee,-15.0,Bank Fees
+BNK25050,2023-03-08,Software - Slack,-80.0,Software
+BNK49022,2023-03-05,Client Payment - Late,505.0,Revenue
+BNK20885,2023-03-23,Overdraft Fee,-35.0,Bank Fees
+BNK20483,2023-03-24,Internet - Comcast,-110.0,Utilities
+BNK96985,2023-03-12,Marketing - LinkedIn,-300.0,Marketing
+BNK74322,2023-03-26,Unrecorded Auto-Debit - Insurance,-200.0,Insurance
+BNK85536,2023-03-23,Client Dinner,-120.0,Meals
+BNK64679,2023-03-03,Monthly Account Maintenance Fee,-25.0,Bank Fees
+BNK64035,2023-03-06,Legal Consultation,-600.0,Legal
+BNK49850,2023-03-28,Client Payment - Acme Corp,2500.0,Revenue
+BNK95817,2023-03-20,Software - Zoom,-40.0,Software
+BNK91034,2023-03-17,Travel - Delta Airlines,-450.0,Travel
+BNK42157,2023-03-16,Cleaning Service,-250.0,Maintenance
+BNK34010,2023-03-19,Software Subscription - Adobe,-54.99,Software
+BNK65703,2023-03-27,Marketing - Google Ads,-500.0,Marketing
+BNK42650,2023-03-15,Interest Paid,12.5,Interest
+BNK69307,2023-03-26,Office Supplies - Paper,-150.0,Office Expense
+BNK85668,2023-03-27,Client Payment - Delta Co,1800.0,Revenue
+BNK20269,2023-03-28,Contractor Payment,-1000.5,Contractor
+BNK41211,2023-03-05,Hotel - Marriott,-380.0,Travel
+BNK51342,2023-03-18,Client Payment - Gamma Inc,3400.0,Revenue
+BNK80088,2023-03-08,Equipment - Dell Monitors,-600.0,Equipment

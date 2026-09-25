@@ -1,13 +1,21 @@
 import os
-import google.generativeai as genai
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
+# Models to try in order — prioritizing confirmed working models
+FALLBACK_MODELS = [
+    "gemini-3.5-flash",
+    "gemini-3.5-flash-lite",
+    "gemini-3.7-flash",
+    "gemini-3.8-flash",
+]
+
 def generate_summary(flagged_df):
     """
     Sends the flagged reconciliation transactions to Gemini and returns a summary.
+    Uses the google-genai SDK with automatic model fallback.
     """
     api_key = os.getenv("GEMINI_API_KEY")
     
@@ -15,9 +23,9 @@ def generate_summary(flagged_df):
          return "⚠️ **API Key Missing**: Please set your `GEMINI_API_KEY` in the `.env` file to generate AI summaries."
          
     try:
-        genai.configure(api_key=api_key)
-        # Using gemini-2.0-flash as requested
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        from google import genai
+
+        client = genai.Client(api_key=api_key)
         
         # Prepare the context to avoid hitting token limits
         # We group by status and summarize counts, plus a few examples
@@ -47,8 +55,23 @@ def generate_summary(flagged_df):
             "repeat the raw data back — provide analysis and next steps."
         )
         
-        response = model.generate_content(f"{system_prompt}\n\nData Context:\n{context_str}")
-        return response.text
+        prompt = f"{system_prompt}\n\nData Context:\n{context_str}"
+        
+        # Try each model in the fallback list
+        last_error = None
+        for model_name in FALLBACK_MODELS:
+            try:
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=prompt
+                )
+                return response.text
+            except Exception as model_err:
+                last_error = model_err
+                continue  # Try the next model
+        
+        # If all models failed, return the last error
+        return f"⚠️ **Error generating AI summary**: All models unavailable. Last error: {str(last_error)}"
         
     except Exception as e:
         return f"⚠️ **Error generating AI summary**: {str(e)}"

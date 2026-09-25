@@ -167,7 +167,7 @@ def reconcile(ledger_df, bank_df):
         "Total Transactions": total_tx,
         "Matched": matched_count,
         "Flagged": flagged_count,
-        "Total Discrepancy Value ($)": round(total_discrepancy_value, 2)
+        "Total Discrepancy Value (₹)": round(total_discrepancy_value, 2)
     }
     
     return combined_df, summary

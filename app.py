@@ -26,23 +26,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Sidebar
-with st.sidebar:
-    st.header("💡 How it works")
-    st.markdown("""
-    1. **Upload Data:** Provide your internal ledger and bank statement as CSV files.
-    2. **Auto-Match:** ReconAI uses exact and fuzzy matching to automatically reconcile transactions.
-    3. **Categorize:** Unmatched items are categorized (e.g., Timing Differences, Mismatches).
-    4. **AI Summary:** Generate a plain-English, actionable summary of discrepancies using Google's Gemini AI.
-    """)
-    st.markdown("---")
-    st.info("💡 **Tip**: Use the 'Use Sample Data' button to quickly test the app!")
-
-# Main Title
-st.title("ReconAI — AI-Powered Financial Reconciliation")
-st.markdown("##### Upload your ledger and bank statement to automatically detect and explain discrepancies")
-st.markdown("---")
-
 # Data Loading State
 if 'ledger_df' not in st.session_state:
     st.session_state.ledger_df = None
@@ -54,9 +37,43 @@ if 'results_df' not in st.session_state:
     st.session_state.results_df = None
 if 'summary_stats' not in st.session_state:
     st.session_state.summary_stats = None
+if 'last_ledger_name' not in st.session_state:
+    st.session_state.last_ledger_name = None
+if 'last_bank_name' not in st.session_state:
+    st.session_state.last_bank_name = None
 
-# File Uploads and Sample Data
-col1, col2, col3 = st.columns([2, 2, 1])
+# Sidebar
+with st.sidebar:
+    st.header("💡 How it works")
+    st.markdown("""
+    1. **Upload Data:** Provide your internal ledger and bank statement as CSV files.
+    2. **Auto-Match:** ReconAI uses exact and fuzzy matching to automatically reconcile transactions.
+    3. **Categorize:** Unmatched items are categorized (e.g., Timing Differences, Mismatches).
+    4. **AI Summary:** Generate a plain-English, actionable summary of discrepancies using Google's Gemini AI.
+    """)
+    st.markdown("---")
+    
+    with st.expander("Testing Options"):
+        st.info("Use this to quickly load sample data for testing.")
+        if st.button("Load Sample Data"):
+            try:
+                if not os.path.exists('data/ledger_sample.csv') or not os.path.exists('data/bank_statement_sample.csv'):
+                    st.error("Sample data not found. Please run `python generate_sample_data.py` first.")
+                else:
+                    st.session_state.ledger_df = pd.read_csv('data/ledger_sample.csv')
+                    st.session_state.bank_df = pd.read_csv('data/bank_statement_sample.csv')
+                    st.session_state.reconciled = False
+                    st.success("Sample data loaded! Click 'Run Reconciliation' on the main page.")
+            except Exception as e:
+                st.error(f"Error loading sample data: {e}")
+
+# Main Title
+st.title("ReconAI — AI-Powered Financial Reconciliation")
+st.markdown("##### Upload your ledger and bank statement to automatically detect and explain discrepancies")
+st.markdown("---")
+
+# File Uploads
+col1, col2 = st.columns(2)
 
 with col1:
     ledger_file = st.file_uploader("Upload Ledger CSV", type=['csv'])
@@ -64,32 +81,23 @@ with col1:
 with col2:
     bank_file = st.file_uploader("Upload Bank Statement CSV", type=['csv'])
 
-with col3:
-    st.write("") # Spacing
-    st.write("") # Spacing
-    if st.button("Use Sample Data"):
-        try:
-            if not os.path.exists('data/ledger_sample.csv') or not os.path.exists('data/bank_statement_sample.csv'):
-                st.error("Sample data not found. Please run `python generate_sample_data.py` first.")
-            else:
-                st.session_state.ledger_df = pd.read_csv('data/ledger_sample.csv')
-                st.session_state.bank_df = pd.read_csv('data/bank_statement_sample.csv')
-                st.success("Sample data loaded!")
-        except Exception as e:
-            st.error(f"Error loading sample data: {e}")
-
-# Handle file uploads
+# Handle file uploads (only reset state if a new file is uploaded)
 try:
-    if ledger_file is not None:
+    if ledger_file is not None and ledger_file.name != st.session_state.last_ledger_name:
         st.session_state.ledger_df = pd.read_csv(ledger_file)
-    if bank_file is not None:
+        st.session_state.last_ledger_name = ledger_file.name
+        st.session_state.reconciled = False
+        
+    if bank_file is not None and bank_file.name != st.session_state.last_bank_name:
         st.session_state.bank_df = pd.read_csv(bank_file)
+        st.session_state.last_bank_name = bank_file.name
+        st.session_state.reconciled = False
 except Exception as e:
     st.error(f"Error reading CSV files. Please ensure they are valid. ({e})")
 
-# Run Reconciliation
+# Submit button for reconciliation
 if st.session_state.ledger_df is not None and st.session_state.bank_df is not None:
-    if not st.session_state.reconciled:
+    if st.button("Run Reconciliation", type="primary"):
         with st.spinner("Reconciling transactions..."):
             try:
                 results_df, summary_stats = reconcile(st.session_state.ledger_df, st.session_state.bank_df)
@@ -109,7 +117,7 @@ if st.session_state.reconciled and st.session_state.results_df is not None:
     m1.metric("Total Transactions", stats["Total Transactions"])
     m2.metric("Matched cleanly", stats["Matched"])
     m3.metric("Flagged Issues", stats["Flagged"])
-    m4.metric("Total Discrepancy Value", f"${stats['Total Discrepancy Value ($)']:,}")
+    m4.metric("Total Discrepancy Value", f"₹{stats['Total Discrepancy Value (₹)']:,}")
     
     st.markdown("---")
     st.markdown("### Transaction Details")
@@ -126,12 +134,12 @@ if st.session_state.reconciled and st.session_state.results_df is not None:
         return color
 
     # Apply styling
-    styled_df = st.session_state.results_df.style.applymap(
+    styled_df = st.session_state.results_df.style.map(
         highlight_status, subset=['status']
-    ).format({'amount': '${:.2f}'}, na_rep="")
+    ).format({'amount': '₹{:.2f}'}, na_rep="")
     
     # Show dataframe
-    st.dataframe(styled_df, use_container_width=True, height=400)
+    st.dataframe(styled_df, width='stretch', height=400)
     
     st.markdown("---")
     
@@ -153,4 +161,3 @@ if st.session_state.reconciled and st.session_state.results_df is not None:
             """, unsafe_allow_html=True)
             st.markdown(summary_markdown)
             st.markdown("</div>", unsafe_allow_html=True)
-

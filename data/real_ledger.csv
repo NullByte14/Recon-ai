@@ -1,0 +1,29 @@
+transaction_id,date,description,amount,category
+53b28511,2012-04-01, Personal funds deposited,500.0,Capital
+59099769,2012-04-01, Loan from AMB,1500.0,Bank Loan
+aa755e8e,2012-04-01,The City Express - Shop Assistant,-125.0,Advertising
+a477175b,2012-04-02,Mr Landlord,-800.0,Rent
+bb5a9306,2012-04-03,Power Supply Co - Connect power,-110.0,Power
+006fadbf,2012-04-03,Telecom - Phone/broadbank install,-150.0,Telephone - Landline
+a1af298f,2012-04-08,Office Supplies Inc. - Cash machine,-350.0,Office Supplies
+ab66dd2f,2012-04-08,Office Supplies Inc. - Petty cash box,-350.0,Office Supplies
+0d26318f,2012-04-08,Cash box float and cash machine,-200.0,Cash
+5026696b,2012-04-08,"Local Grocers - tea, coffee, milk",-55.0,Kitchen Supplies
+73faaf4f,2012-04-09,The City Express - Grand Opening,-220.0,Advertising
+4a50c91b,2012-04-09,BT Fuel Station - Fuel,-82.5,Vehicle Costs
+1beaf4d3,2012-04-09,BT Fuel Station - Phone Top-Up,-20.0,Telephone - Mobile
+ec2d6228,2012-04-21,Great Glass Cleaners - Window cleaning,-90.0,Cleaning
+c8ca6a76,2012-04-21,Money from grand opening sales ,900.0,Sales
+16464bbf,2012-04-23,Bank deposit,980.0,Sales
+c36dca0b,2012-04-24,Bank deposit,1100.0,Sales
+0e90a791,2012-04-25,Wages - Alice,-250.0,Wages Expenses
+bb31823a,2012-04-26,Bank deposit,325.0,Sales
+64de69d2,2012-04-27,Bank deposit,269.0,Sales
+ca4ee5f5,2012-04-27,Signwriting on vehicle - City Signwriters,-350.0,Marketing
+b6d8ce73,2012-04-28,All Wholesale Stationers,-86.0,Stationery
+4ecc96a1,2012-04-28,Bank deposit,201.0,Sales
+a056a0bf,2012-04-29,Purchases - floral supplies,-1200.0,Stock Purchases
+9d0e0a19,2012-04-29,Hotel Grande - accommodation and meals,-210.0,Travel Costs
+1a8efbf4,2012-04-29,Bank deposit,665.0,Sales
+bc588c27,2012-04-30,Airfare,-280.0,Travel Costs
+d4f6a2d0,2012-04-30,Bank deposit,110.0,Sales
