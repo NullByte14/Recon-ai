@@ -59,8 +59,8 @@ python generate_sample_data.py
 streamlit run app.py
 ```
 
-## Screenshot Placeholder
-![App Screenshot](screenshot.png)
+## App Screenshot
+*(Save a screenshot of your app as `screenshot.png` in this folder, and then replace this text with `![App Screenshot](screenshot.png)`)*
 
 ## Sample Output
 The tool will automatically categorize transactions, such as catching:
