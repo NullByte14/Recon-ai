@@ -47,30 +47,7 @@ if 'last_ledger_name' not in st.session_state:
 if 'last_bank_name' not in st.session_state:
     st.session_state.last_bank_name = None
 
-# Sidebar
-with st.sidebar:
-    st.header("💡 How it works")
-    st.markdown("""
-    1. **Upload Data:** Provide your internal ledger and bank statement as CSV files.
-    2. **Auto-Match:** ReconAI uses exact and fuzzy matching to automatically reconcile transactions.
-    3. **Categorize:** Unmatched items are categorized (e.g., Timing Differences, Mismatches).
-    4. **AI Summary:** Generate a plain-English, actionable summary of discrepancies using Google's Gemini AI.
-    """)
-    st.markdown("---")
-    
-    with st.expander("Testing Options"):
-        st.info("Use this to quickly load sample data for testing.")
-        if st.button("Load Sample Data"):
-            try:
-                if not os.path.exists('data/ledger_sample.csv') or not os.path.exists('data/bank_statement_sample.csv'):
-                    st.error("Sample data not found. Please run `python generate_sample_data.py` first.")
-                else:
-                    st.session_state.ledger_df = pd.read_csv('data/ledger_sample.csv')
-                    st.session_state.bank_df = pd.read_csv('data/bank_statement_sample.csv')
-                    st.session_state.reconciled = False
-                    st.success("Sample data loaded! Click 'Run Reconciliation' on the main page.")
-            except Exception as e:
-                st.error(f"Error loading sample data: {e}")
+
 
 # Main Title
 st.title("ReconAI — AI-Powered Financial Reconciliation")
@@ -99,6 +76,21 @@ try:
         st.session_state.reconciled = False
 except Exception as e:
     st.error(f"Error reading CSV files. Please ensure they are valid. ({e})")
+
+# Testing Options (moved from sidebar)
+with st.expander("🧪 Testing Options (Load Sample Data)"):
+    st.info("Use this to quickly load sample data if you don't have your own CSV files.")
+    if st.button("Load Sample Data"):
+        try:
+            if not os.path.exists('data/ledger_sample.csv') or not os.path.exists('data/bank_statement_sample.csv'):
+                st.error("Sample data not found. Please run `python generate_sample_data.py` first.")
+            else:
+                st.session_state.ledger_df = pd.read_csv('data/ledger_sample.csv')
+                st.session_state.bank_df = pd.read_csv('data/bank_statement_sample.csv')
+                st.session_state.reconciled = False
+                st.success("Sample data loaded! Click 'Run Reconciliation' below.")
+        except Exception as e:
+            st.error(f"Error loading sample data: {e}")
 
 # Submit button for reconciliation
 if st.session_state.ledger_df is not None and st.session_state.bank_df is not None:
