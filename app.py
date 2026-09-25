@@ -1,0 +1,156 @@
+import streamlit as st
+import pandas as pd
+import os
+from matcher import reconcile
+from ai_summary import generate_summary
+
+# Configure page
+st.set_page_config(
+    page_title="ReconAI",
+    page_icon="📊",
+    layout="wide"
+)
+
+# Custom CSS for styling
+st.markdown("""
+    <style>
+    .stButton > button {
+        width: 100%;
+        border-radius: 8px;
+        background-color: #4CAF50;
+        color: white;
+    }
+    .stButton > button:hover {
+        background-color: #45a049;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Sidebar
+with st.sidebar:
+    st.header("💡 How it works")
+    st.markdown("""
+    1. **Upload Data:** Provide your internal ledger and bank statement as CSV files.
+    2. **Auto-Match:** ReconAI uses exact and fuzzy matching to automatically reconcile transactions.
+    3. **Categorize:** Unmatched items are categorized (e.g., Timing Differences, Mismatches).
+    4. **AI Summary:** Generate a plain-English, actionable summary of discrepancies using Google's Gemini AI.
+    """)
+    st.markdown("---")
+    st.info("💡 **Tip**: Use the 'Use Sample Data' button to quickly test the app!")
+
+# Main Title
+st.title("ReconAI — AI-Powered Financial Reconciliation")
+st.markdown("##### Upload your ledger and bank statement to automatically detect and explain discrepancies")
+st.markdown("---")
+
+# Data Loading State
+if 'ledger_df' not in st.session_state:
+    st.session_state.ledger_df = None
+if 'bank_df' not in st.session_state:
+    st.session_state.bank_df = None
+if 'reconciled' not in st.session_state:
+    st.session_state.reconciled = False
+if 'results_df' not in st.session_state:
+    st.session_state.results_df = None
+if 'summary_stats' not in st.session_state:
+    st.session_state.summary_stats = None
+
+# File Uploads and Sample Data
+col1, col2, col3 = st.columns([2, 2, 1])
+
+with col1:
+    ledger_file = st.file_uploader("Upload Ledger CSV", type=['csv'])
+
+with col2:
+    bank_file = st.file_uploader("Upload Bank Statement CSV", type=['csv'])
+
+with col3:
+    st.write("") # Spacing
+    st.write("") # Spacing
+    if st.button("Use Sample Data"):
+        try:
+            if not os.path.exists('data/ledger_sample.csv') or not os.path.exists('data/bank_statement_sample.csv'):
+                st.error("Sample data not found. Please run `python generate_sample_data.py` first.")
+            else:
+                st.session_state.ledger_df = pd.read_csv('data/ledger_sample.csv')
+                st.session_state.bank_df = pd.read_csv('data/bank_statement_sample.csv')
+                st.success("Sample data loaded!")
+        except Exception as e:
+            st.error(f"Error loading sample data: {e}")
+
+# Handle file uploads
+try:
+    if ledger_file is not None:
+        st.session_state.ledger_df = pd.read_csv(ledger_file)
+    if bank_file is not None:
+        st.session_state.bank_df = pd.read_csv(bank_file)
+except Exception as e:
+    st.error(f"Error reading CSV files. Please ensure they are valid. ({e})")
+
+# Run Reconciliation
+if st.session_state.ledger_df is not None and st.session_state.bank_df is not None:
+    if not st.session_state.reconciled:
+        with st.spinner("Reconciling transactions..."):
+            try:
+                results_df, summary_stats = reconcile(st.session_state.ledger_df, st.session_state.bank_df)
+                st.session_state.results_df = results_df
+                st.session_state.summary_stats = summary_stats
+                st.session_state.reconciled = True
+            except Exception as e:
+                st.error(f"Error during reconciliation: {e}")
+
+# Display Results
+if st.session_state.reconciled and st.session_state.results_df is not None:
+    st.markdown("### Reconciliation Summary")
+    
+    # Metrics Row
+    m1, m2, m3, m4 = st.columns(4)
+    stats = st.session_state.summary_stats
+    m1.metric("Total Transactions", stats["Total Transactions"])
+    m2.metric("Matched cleanly", stats["Matched"])
+    m3.metric("Flagged Issues", stats["Flagged"])
+    m4.metric("Total Discrepancy Value", f"${stats['Total Discrepancy Value ($)']:,}")
+    
+    st.markdown("---")
+    st.markdown("### Transaction Details")
+    
+    # Styling function for pandas
+    def highlight_status(val):
+        color = ''
+        if val == 'Matched':
+            color = 'background-color: rgba(76, 175, 80, 0.2)' # Green
+        elif val == 'Timing Difference':
+            color = 'background-color: rgba(255, 193, 7, 0.2)' # Yellow
+        elif val in ['Unmatched - Ledger Only', 'Unmatched - Bank Only', 'Amount Mismatch', 'Possible Duplicate']:
+            color = 'background-color: rgba(244, 67, 54, 0.2)' # Red
+        return color
+
+    # Apply styling
+    styled_df = st.session_state.results_df.style.applymap(
+        highlight_status, subset=['status']
+    ).format({'amount': '${:.2f}'}, na_rep="")
+    
+    # Show dataframe
+    st.dataframe(styled_df, use_container_width=True, height=400)
+    
+    st.markdown("---")
+    
+    # AI Summary Section
+    st.markdown("### AI Executive Summary")
+    st.markdown("Generate an AI-powered explanation of the discrepancies and suggested next steps.")
+    
+    if st.button("Generate AI Summary"):
+        flagged_df = st.session_state.results_df[st.session_state.results_df['status'] != 'Matched']
+        
+        if flagged_df.empty:
+            st.success("No discrepancies found! All transactions match perfectly. No summary needed.")
+        else:
+            with st.spinner("Analyzing discrepancies with AI..."):
+                summary_markdown = generate_summary(flagged_df)
+                
+            st.markdown("""
+            <div style="background-color: #1e1e1e; padding: 20px; border-radius: 10px; border: 1px solid #333;">
+            """, unsafe_allow_html=True)
+            st.markdown(summary_markdown)
+            st.markdown("</div>", unsafe_allow_html=True)
+
