@@ -7,9 +7,9 @@ def reconcile(ledger_df, bank_df):
     Reconciles ledger and bank statement DataFrames.
     Returns a combined DataFrame with status and notes, and summary statistics.
     """
-    # Ensure date columns are datetime objects
-    ledger_df['date'] = pd.to_datetime(ledger_df['date'])
-    bank_df['date'] = pd.to_datetime(bank_df['date'])
+    # Ensure date columns are datetime objects, ignoring time for exact matching
+    ledger_df['date'] = pd.to_datetime(ledger_df['date']).dt.normalize()
+    bank_df['date'] = pd.to_datetime(bank_df['date']).dt.normalize()
     
     # Add source tracking and initialize status
     ledger = ledger_df.copy()

@@ -8,12 +8,17 @@ from ai_summary import generate_summary
 st.set_page_config(
     page_title="ReconAI",
     page_icon="📊",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 # Custom CSS for styling
 st.markdown("""
     <style>
+    /* Hide the Streamlit header, menu, and print/record options */
+    header {visibility: hidden;}
+    #MainMenu {visibility: hidden;}
+    
     .stButton > button {
         width: 100%;
         border-radius: 8px;
